@@ -26,6 +26,15 @@ p {
   overflow: hidden;
   box-shadow: 0 0 8px 0 rgba(0,0,0, 0.3);
 }
+.chatroomLogin {
+  width: 360px;
+  height: 600px;
+  background-color: rgba(0,0,0, .7);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 0 8px 0 rgba(0,0,0, 0.3);
+  font: white
+}
 
 .chatroom h3 {
   font-family: 'Pacifico', cursive;
@@ -36,6 +45,18 @@ p {
   font-size: 20px;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+.chatroomLogin h3 {
+  font-family: 'Pacifico', cursive;
+  background-color: rgba(30, 228, 148, 0.7);
+  color: #FFF;
+  margin: 0;
+  height: 40px;
+  width: 100%;
+  font-size: 20px;
+  display: flex;
+  align-items: left;
   justify-content: center;
 }
 

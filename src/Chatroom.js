@@ -74,7 +74,8 @@ class Chatroom extends React.Component {
     }
 
     render() {
-        const username = "Kevin Hsu";
+        const username = this.props.location.userName;
+        // alert(username);
         const { chats } = this.state;
 
         return (
