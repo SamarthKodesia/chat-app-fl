@@ -65,6 +65,7 @@ const [password,setPassWord] = useState('');
     const handleSubmit = ()=>{
         if(password === 'password'){
             alert('Authentication Successfull');
+            localStorage.setItem('userName',username);
             history.push({
                 pathname: '/Chatroom',
                 userName: username,
