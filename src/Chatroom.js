@@ -1,4 +1,4 @@
-import React , {useState, userEffect} from 'react';
+import React, { useState, userEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -17,7 +17,7 @@ class Chatroom extends React.Component {
             anchorEl: false,
             user: '',
             chats: [],
-            img:'',
+            img: '',
             data: [],
             selectedId: null,
             dataToBeExported: []
@@ -31,93 +31,130 @@ class Chatroom extends React.Component {
         this.setState({
             anchorEl: event.currentTarget
         })
-        console.log("ANchor State",this.state.anchorEl);
-      };
-      setId(id) {
-          this.setState({
-              selectedId: id 
-          })
-          console.log("GG wp",id);
-      }
-      isSpam(id) {
-          this.updateData(true);
-          this.setState({
+        console.log("ANchor State", this.state.anchorEl);
+    };
+    setId(id) {
+        this.setState({
+            selectedId: id
+        })
+        console.log("GG wp", id);
+    }
+    isSpam(id) {
+        this.updateData(true);
+        this.setState({
             anchorEl: false
         })
-      }
-      isNotSpam(id) {
+    }
+    isNotSpam(id) {
         this.updateData(false);
         console.log("IS HAM");
         this.setState({
-          anchorEl: false
-      })
+            anchorEl: false
+        })
     }
 
-    updateData( flag) {
-        console.log("Reached here",this.state.selectedId,flag);
+    updateData(flag) {
+        console.log("Reached here", this.state.selectedId, flag);
         const data = {
             id: this.state.selectedId,
             isSpam: flag
         }
         fetch('http://localhost:3000/users', {
-            method: 'PUT', 
+            method: 'PUT',
             headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': 'Content-Type'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'Content-Type'
             },
             body: JSON.stringify(data)
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log('Success:', data);
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
-    
+
     handleClose = () => {
         this.setState({
             anchorEl: null
         })
-      };
+    };
 
-    componentDidMount() {
+  async componentDidMount() {
         this.scrollToBot();
-        var user= localStorage.getItem('userName');
+        var user = localStorage.getItem('userName');
         fetch("http://localhost:3000/users", {
 
         })
-        .then(response => response.json())
-        .then(response => {
-        console.log(response)
-        this.setState({
-            chats: response,
-            user: user
-        })
-        for(let data in this.state.chats){
-            console.log("Data", this.state.chats[data]);
-            if(this.state.chats[data].isSpam){
+            .then(response => response.json())
+            .then(response => {
+                console.log(response)
                 this.setState({
-                    dataToBeExported: this.state.dataToBeExported.concat([{
-                        label: 'spam',
-                        sms: this.state.chats[data].content
-                    }])
+                    chats: response,
+                    user: user
                 })
-            }
-            else {
-                this.setState({
-                    dataToBeExported: this.state.dataToBeExported.concat([{
-                        label: 'ham',
-                        sms: this.state.chats[data].content
-                    }])
-                })
-            }
-        }
-        })
-        .catch(err => {
-        console.log(err);
-        });
+                for (let data in this.state.chats) {
+                    // let spam = this.checkSpam(this.state.chats[data].content)
+                    //  console.log(">>>",spam,">>>");
+                    let content = this.state.chats[data].content;
+                    let contentIsSpam;
+                    if (this.state.chats[data].isSpam === '') {
+                        let url = 'http://localhost:1001/predict' + '?message=' + content;
+                         fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': 'Content-Type'
+                            },
+                            // body: JSON.stringify(data)
+                        })
+                            //.then(response => {console.log(12345,response.json())})
+                            .then(function (response) {
+                                return response.json();
+                            })
+                            .then(function (data) {
+                                const items = data;
+                                 //console.log(items.isSpam);
+                                contentIsSpam = items.isSpam;
+                                console.log(12345,contentIsSpam);
+                                this.setState({
+                                    chats : contentIsSpam
+                                })
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
+                            });
+                            
+
+                        if (contentIsSpam === "True") {
+                            console.log("Message is Spam!", this.state.chats[data].content);
+                        }
+
+                    }
+                    console.log("Data", this.state.chats[data]);
+                    if (this.state.chats[data].isSpam) {
+                        this.setState({
+                            dataToBeExported: this.state.dataToBeExported.concat([{
+                                label: 'spam',
+                                sms: this.state.chats[data].content
+                            }])
+                        })
+                    }
+                    else {
+                        this.setState({
+                            dataToBeExported: this.state.dataToBeExported.concat([{
+                                label: 'ham',
+                                sms: this.state.chats[data].content
+                            }])
+                        })
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 
     componentDidUpdate() {
@@ -128,9 +165,9 @@ class Chatroom extends React.Component {
         ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(this.refs.chats).scrollHeight;
     }
 
-    sendData(){
+    sendData() {
         let img = '';
-        if(this.props.location.userName == 'sam'){
+        if (this.props.location.userName == 'sam') {
             img = 'https://i.ibb.co/MM4vsRr/IMG-3042.jpg';
         }
         else {
@@ -139,41 +176,31 @@ class Chatroom extends React.Component {
         const data = {
             username: this.state.user,
             content: ReactDOM.findDOMNode(this.refs.msg).value,
-            img: img
+            img: img,
+            isSpam: ''
         }
-        console.log('data',data);
-        // fetch('http://localhost:3000/users', {
-        //     method: 'POST', 
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       'Access-Control-Allow-Origin': 'Content-Type'
-        //     },
-        //     body: JSON.stringify(data)
-        //   })
-        //   .then(response => response.json())
-        //   .then(data => {
-        //     console.log('Success:', data);
-        //   })
-        //   .catch((error) => {
-        //     console.error('Error:', error);
-        //   });
-          let url = 'http://localhost:1001/predict'+'?message='+data.content;
-          fetch(url, {
-            method: 'POST', 
+        console.log('data', data);
+        fetch('http://localhost:3000/users', {
+            method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-             'Access-Control-Allow-Origin': 'Content-Type'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': 'Content-Type'
             },
-            // body: JSON.stringify(data)
-          })
-          .then(response => {console.log(12345,response.json())})
-          .then(data => {
-            console.log('Success:',data);
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+
     }
+
+    // async checkSpam(content) {
+
+    // }
 
     submitMessage(e) {
         e.preventDefault();
@@ -199,27 +226,27 @@ class Chatroom extends React.Component {
                 <h3>Bholi Padosan</h3>
                 <ul className="chats" ref="chats">
                     {
-                        chats.map((chat) => 
-                        <div>
-                            <li className={`chat ${username === chat.username ? "right" : "left"}`} onClick={this.handleClick}>
-                            {username !== chat.username
-                                && <img src={chat.img} alt={`${chat.username}'s profile pic`} />
-                            }
-                            <div onClick={() => {this.setId(chat._id)}}>
-                            {chat.content}
-                                </div>
-                        </li>
-                                                    <Menu
-                                                    id= {chat._id}
-                                                    anchorEl={this.state.anchorEl}
-                                                    keepMounted
-                                                    open={this.state.anchorEl}
-                                                    onClose={this.handleClose}
-                                                >
-                                                    <MenuItem onClick={() => {this.isSpam(chat._id)}}>Spam</MenuItem>
-                                                    <MenuItem onClick={() => {this.isNotSpam(chat._id)}}>Not Spam</MenuItem>
-                                                </Menu>
-                                                </div>
+                        chats.map((chat) =>
+                            <div>
+                                <li className={`chat ${username === chat.username ? "right" : "left"}`} onClick={this.handleClick}>
+                                    {username !== chat.username
+                                        && <img src={chat.img} alt={`${chat.username}'s profile pic`} />
+                                    }
+                                    <div onClick={() => { this.setId(chat._id) }}>
+                                        {chat.content}
+                                    </div>
+                                </li>
+                                <Menu
+                                    id={chat._id}
+                                    anchorEl={this.state.anchorEl}
+                                    keepMounted
+                                    open={this.state.anchorEl}
+                                    onClose={this.handleClose}
+                                >
+                                    <MenuItem onClick={() => { this.isSpam(chat._id) }}>Spam</MenuItem>
+                                    <MenuItem onClick={() => { this.isNotSpam(chat._id) }}>Not Spam</MenuItem>
+                                </Menu>
+                            </div>
                         )
                     }
                 </ul>
