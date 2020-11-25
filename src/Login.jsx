@@ -16,6 +16,8 @@ import Chatroom from './Chatroom';
 import Routes from './Routes';
 import history from './history';
 import './App.css';
+
+
 const useStyles = makeStyles((theme) => ({
    container:{
     background:'black',
@@ -65,7 +67,6 @@ const [password,setPassWord] = useState('');
     const handleSubmit = ()=>{
         if(password === 'password'){
             alert('Authentication Successfull');
-            localStorage.setItem('userName',username);
             history.push({
                 pathname: '/Chatroom',
                 userName: username,

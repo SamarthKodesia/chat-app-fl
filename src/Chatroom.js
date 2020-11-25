@@ -142,17 +142,33 @@ class Chatroom extends React.Component {
             img: img
         }
         console.log('data',data);
-        fetch('http://localhost:3000/users', {
+        // fetch('http://localhost:3000/users', {
+        //     method: 'POST', 
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //       'Access-Control-Allow-Origin': 'Content-Type'
+        //     },
+        //     body: JSON.stringify(data)
+        //   })
+        //   .then(response => response.json())
+        //   .then(data => {
+        //     console.log('Success:', data);
+        //   })
+        //   .catch((error) => {
+        //     console.error('Error:', error);
+        //   });
+          let url = 'http://localhost:1001/predict'+'?message='+data.content;
+          fetch(url, {
             method: 'POST', 
             headers: {
               'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': 'Content-Type'
+             'Access-Control-Allow-Origin': 'Content-Type'
             },
-            body: JSON.stringify(data)
+            // body: JSON.stringify(data)
           })
-          .then(response => response.json())
+          .then(response => {console.log(12345,response.json())})
           .then(data => {
-            console.log('Success:', data);
+            console.log('Success:',data);
           })
           .catch((error) => {
             console.error('Error:', error);
