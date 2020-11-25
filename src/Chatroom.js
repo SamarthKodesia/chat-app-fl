@@ -240,7 +240,7 @@ class Chatroom extends React.Component {
                     {
                         chats.map((chat) =>
                             <div>
-                                <li className={`chat ${username === chat.username ? "right" : "left"}`} onClick={this.handleClick}>
+                                <li className={`chat ${username === chat.username ? "right" : "left"}`} onClick={this.handleClick} style={chat.isSpam?{border:'red 3px solid'}:null}>
                                     {username !== chat.username
                                         && <img src={chat.img} alt={`${chat.username}'s profile pic`} />
                                     }
