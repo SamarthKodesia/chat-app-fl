@@ -82,7 +82,7 @@ class Chatroom extends React.Component {
         })
     };
 
-  async componentDidMount() {
+     componentDidMount() {
         this.scrollToBot();
         var user = localStorage.getItem('userName');
         fetch("http://localhost:3000/users", {
@@ -98,41 +98,17 @@ class Chatroom extends React.Component {
                 for (let data in this.state.chats) {
                     // let spam = this.checkSpam(this.state.chats[data].content)
                     //  console.log(">>>",spam,">>>");
-                    let content = this.state.chats[data].content;
-                    let contentIsSpam;
-                    if (this.state.chats[data].isSpam === '') {
-                        let url = 'http://localhost:1001/predict' + '?message=' + content;
-                         fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Access-Control-Allow-Origin': 'Content-Type'
-                            },
-                            // body: JSON.stringify(data)
-                        })
-                            //.then(response => {console.log(12345,response.json())})
-                            .then(function (response) {
-                                return response.json();
-                            })
-                            .then(function (data) {
-                                const items = data;
-                                 //console.log(items.isSpam);
-                                contentIsSpam = items.isSpam;
-                                console.log(12345,contentIsSpam);
-                                this.setState({
-                                    chats : contentIsSpam
-                                })
-                            })
-                            .catch((error) => {
-                                console.error('Error:', error);
-                            });
+                    // let content = this.state.chats[data].content;
+                    // let contentIsSpam;
+                    // if (this.state.chats[data].isSpam === '') {
+                        
                             
 
-                        if (contentIsSpam === "True") {
-                            console.log("Message is Spam!", this.state.chats[data].content);
-                        }
+                    //     if (contentIsSpam === "true") {
+                    //         console.log("Message is Spam!", this.state.chats[data].content);
+                    //     }
 
-                    }
+                    // }
                     console.log("Data", this.state.chats[data]);
                     if (this.state.chats[data].isSpam) {
                         this.setState({
@@ -165,42 +141,78 @@ class Chatroom extends React.Component {
         ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(this.refs.chats).scrollHeight;
     }
 
-    sendData() {
-        let img = '';
-        if (this.props.location.userName == 'sam') {
-            img = 'https://i.ibb.co/MM4vsRr/IMG-3042.jpg';
-        }
-        else {
-            img = 'https://i.ibb.co/hyWVz4y/Screen-Shot-2020-11-22-at-12-18-24-AM.png';
-        }
-        const data = {
-            username: this.state.user,
-            content: ReactDOM.findDOMNode(this.refs.msg).value,
-            img: img,
-            isSpam: ''
-        }
-        console.log('data', data);
-        fetch('http://localhost:3000/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'Content-Type'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-
-    }
-
-    // async checkSpam(content) {
-
+    // async sendData() {
+       
     // }
+
+    async checkSpam(content) {
+        let url = 'http://localhost:1001/predict' + '?message=' + content;
+        let contentIsSpam;
+        let user = this.state.user;
+        let username = this.props.location.userName;
+                         await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': 'Content-Type'
+                            },
+                            // body: JSON.stringify(data)
+                        })
+                            //.then(response => {console.log(12345,response.json())})
+                            .then(function (response) {
+                                return response.json();
+                            })
+                            .then(function (data) {
+                                const items = data;
+                                 //console.log(items.isSpam);
+                                contentIsSpam = items.isSpam;
+                                console.log(12345,contentIsSpam);
+                                // this.setState({
+                                //     chats : contentIsSpam
+                                // })
+                                // this.state.chats[data].isSpam=contentIsSpam;
+
+                                // console.log(this.state.chats[data]);
+                            }).then(function(){
+                                let img = '';
+                                if ( username == 'sam') {
+                                    img = 'https://i.ibb.co/MM4vsRr/IMG-3042.jpg';
+                                }
+                                else {
+                                    img = 'https://i.ibb.co/hyWVz4y/Screen-Shot-2020-11-22-at-12-18-24-AM.png';
+                                }
+                                // let spam;
+                                //      spam = this.checkSpam(ReactDOM.findDOMNode(this.refs.msg).value);
+                        
+                                const data = {
+                                    username: user,
+                                    content: content,
+                                    img: img,
+                                    isSpam: contentIsSpam
+                                }
+                                console.log('data', data);
+                                fetch('http://localhost:3000/users', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Access-Control-Allow-Origin': 'Content-Type'
+                                    },
+                                    body: JSON.stringify(data)
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        console.log('Success:', data);
+                                    })
+                                    .catch((error) => {
+                                        console.error('Error:', error);
+                                    });
+                        
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
+                            });
+                       // return contentIsSpam;
+    }
 
     submitMessage(e) {
         e.preventDefault();
@@ -213,7 +225,7 @@ class Chatroom extends React.Component {
         }, () => {
             ReactDOM.findDOMNode(this.refs.msg).value = "";
         });
-        this.sendData();
+        this.checkSpam(ReactDOM.findDOMNode(this.refs.msg).value);
     }
 
     render() {
